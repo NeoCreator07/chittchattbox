@@ -15,11 +15,8 @@
 .relay-logo.sm .relay-logo-icon svg{width:22px;height:22px}
 
 /* ── SPLASH SCREEN ── */
-#splash{position:fixed;inset:0;z-index:100;background:linear-gradient(135deg,#1a0533 0%,#2d0a5e 40%,#0f0820 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1.2rem;
-  animation:splashExit .4s ease 1.8s both;
-  pointer-events:none;
-}
-@keyframes splashExit{to{opacity:0;visibility:hidden}}
+#splash{position:fixed;inset:0;z-index:100;background:linear-gradient(135deg,#1a0533 0%,#2d0a5e 40%,#0f0820 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1.2rem;transition:opacity .5s ease;}
+#splash.gone{opacity:0;pointer-events:none;visibility:hidden;}
 .splash-logo{display:flex;flex-direction:column;align-items:center;gap:1rem;animation:splashPop .6s cubic-bezier(.34,1.56,.64,1) both}
 .splash-logo-icon{width:80px;height:80px;border-radius:22px;background:linear-gradient(135deg,#7c3aed,#4f1d96);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 40px rgba(124,58,237,.5),0 0 0 1px rgba(255,255,255,.08)}
 .splash-wordmark{font-family:'Roboto',sans-serif;font-size:2rem;font-weight:700;background:linear-gradient(135deg,#ffffff 0%,#c4b5fd 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.02em}
@@ -60,7 +57,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Roboto
 /* ── SCREENS ── */
 .screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:30;padding:1.5rem}
 .screen.hidden{display:none}
-.panel{width:100%;max-width:420px;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:2.5rem 2.2rem;display:flex;flex-direction:column;gap:1.5rem;box-shadow:0 8px 32px var(--shadow);animation:fadeUp .4s ease both}
+.panel{width:100%;max-width:420px;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:2.5rem 2.2rem;display:flex;flex-direction:column;gap:1.5rem;box-shadow:0 8px 32px var(--shadow)}
 .brand{display:flex;align-items:center;gap:.6rem}
 .brand-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);flex-shrink:0}
 .brand-name{font-family:'Roboto Mono',monospace;font-size:.78rem;letter-spacing:.16em;color:var(--accent);font-weight:500}
@@ -300,7 +297,7 @@ footer{padding:.9rem 1.6rem;background:var(--surface);border-top:1px solid var(-
 </div>
 
 <!-- NAME SCREEN -->
-<div class="screen" id="screen-name">
+<div class="screen hidden" id="screen-name">
   <div class="panel">
     <div class="brand">
       <svg width="28" height="28" viewBox="0 0 28 28" fill="none" style="flex-shrink:0">
@@ -593,7 +590,12 @@ window.addEventListener('DOMContentLoaded', () => {
   db      = firebase.database();
   storage = firebase.storage();
 
-  // splash dismisses itself via CSS animation — no JS needed
+  // dismiss splash after 1.8s, show login
+  function showLogin() {
+    document.getElementById('splash').classList.add('gone');
+    document.getElementById('screen-name').classList.remove('hidden');
+  }
+  setTimeout(showLogin, 1800);
 
   // restore theme
   const savedTheme = localStorage.getItem('lc_theme') || 'dark';
@@ -630,8 +632,7 @@ window.addEventListener('DOMContentLoaded', () => {
   });
   } catch(bootErr) {
     console.error('Boot error:', bootErr);
-    // ensure login screen always appears even if boot fails
-    document.getElementById('splash').classList.add('hidden');
+    document.getElementById('splash').classList.add('gone');
     document.getElementById('screen-name').classList.remove('hidden');
   }
 });
