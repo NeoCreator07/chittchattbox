@@ -307,7 +307,7 @@ const DEFAULTS = ['general','random','lounge'];
 
 let db, storage, myName, myId, currentSrv = null;
 let presenceRef = null, srvListeners = {}, members = {}, servers = {};
-let tenorKey = null;
+let tenorKey = null; // kept as variable name for compat, stores Giphy key
 
 // ─────────────────────────────────────────────────────────────
 //  BOOT
@@ -378,7 +378,7 @@ function joinChat() {
     if (!storedHash && !storedPlain) { err.textContent = '⚠ No join code set in Firebase.'; reset(); return; }
     if (!match) { err.textContent = '⚠ Wrong code. Try again.'; document.getElementById('codeInput').value=''; document.getElementById('codeInput').focus(); reset(); return; }
 
-    if (cfg.tenorKey) tenorKey = cfg.tenorKey;
+    if (cfg.giphyKey) tenorKey = cfg.giphyKey;
 
     myName = n; myId = 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2,5);
     localStorage.setItem('lc_name', myName);
@@ -539,10 +539,10 @@ function removeProgress(id) {
 }
 
 // ─────────────────────────────────────────────────────────────
-//  GIF PICKER  (Tenor)
+//  GIF PICKER  (Giphy)
 // ─────────────────────────────────────────────────────────────
 function openGifModal() {
-  if (!tenorKey) { sysMsg('⚠ No Tenor API key set. Add config/tenorKey in Firebase Console.'); return; }
+  if (!tenorKey) { sysMsg('⚠ No Giphy key set. Add config/giphyKey in Firebase Console.'); return; }
   document.getElementById('gif-modal').classList.add('show');
   setTimeout(() => document.getElementById('gifSearch').focus(), 50);
   searchGifs('trending');
@@ -556,23 +556,21 @@ function searchGifs(query) {
   grid.innerHTML = '<div class="gif-empty">Loading…</div>';
 
   const endpoint = q === 'trending'
-    ? `https://tenor.googleapis.com/v2/featured?key=${tenorKey}&limit=18&contentfilter=medium&media_filter=gif,tinygif`
-    : `https://tenor.googleapis.com/v2/search?key=${tenorKey}&q=${encodeURIComponent(q)}&limit=18&contentfilter=medium&media_filter=gif,tinygif`;
+    ? `https://api.giphy.com/v1/gifs/trending?api_key=${tenorKey}&limit=18&rating=pg-13`
+    : `https://api.giphy.com/v1/gifs/search?api_key=${tenorKey}&q=${encodeURIComponent(q)}&limit=18&rating=pg-13`;
 
   fetch(endpoint)
     .then(r => r.json())
     .then(data => {
       grid.innerHTML = '';
-      if (!data.results || !data.results.length) { grid.innerHTML='<div class="gif-empty">No results</div>'; return; }
-      data.results.forEach(gif => {
-        const media   = gif.media_formats;
-        const preview = media.tinygif?.url || media.gif?.url;
-        const full    = media.gif?.url || preview;
-        if (!preview) return;
+      if (!data.data || !data.data.length) { grid.innerHTML='<div class="gif-empty">No results</div>'; return; }
+      data.data.forEach(gif => {
+        const preview = gif.images.fixed_height_small.url;
+        const full    = gif.images.original.url;
         const item = document.createElement('div'); item.className='gif-item';
         const img  = document.createElement('img'); img.src=preview; img.loading='lazy';
         item.appendChild(img);
-        item.onclick = () => { sendGif(full, gif.content_description||'GIF'); closeGifModal(); };
+        item.onclick = () => { sendGif(full, gif.title||'GIF'); closeGifModal(); };
         grid.appendChild(item);
       });
     })
