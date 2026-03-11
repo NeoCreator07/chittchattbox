@@ -143,9 +143,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Roboto
 .status-bar{display:none;align-items:center;gap:.5rem;padding:.38rem 1.6rem;background:rgba(255,107,107,.08);border-bottom:1px solid rgba(255,107,107,.15);font-family:'Roboto Mono',monospace;font-size:.72rem;color:var(--danger);flex-shrink:0}
 .status-bar.show{display:flex}
 
-#messages{flex:1;overflow-y:auto;padding:1.2rem 1.6rem;display:flex;flex-direction:column;gap:.08rem;scroll-behavior:smooth}
+#messages{flex:1;overflow-y:auto;padding:1.2rem 1.6rem;display:flex;flex-direction:column;gap:.08rem;scroll-behavior:smooth;background:transparent;}
 #messages::-webkit-scrollbar{width:5px}
 #messages::-webkit-scrollbar-thumb{background:var(--muted);border-radius:4px}
+/* when vanta is active, give messages a subtle backdrop */
+body.vanta-active #messages .msg:hover{background:rgba(255,255,255,.07)}
+body.vanta-active #messages .msg-text{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 .empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;opacity:.3}
 .empty-icon{font-size:2.8rem}
 .empty-text{font-size:.95rem;color:var(--dim);font-weight:500}
@@ -207,9 +210,11 @@ footer{padding:.9rem 1.6rem;background:var(--surface);border-top:1px solid var(-
 .danger-btn:hover{opacity:.85}
 
 /* ── VANTA BACKGROUND ── */
-#messages{position:relative;}
-#vanta-bg{position:absolute;inset:0;z-index:0;pointer-events:none;}
-#messages > *:not(#vanta-bg){position:relative;z-index:1;}
+#main{position:relative;}
+#vanta-bg{position:absolute;inset:0;z-index:0;pointer-events:none;width:100%;height:100%;}
+#main > *:not(#vanta-bg){position:relative;z-index:1;}
+.chat-bar{background:var(--surface)!important;}
+footer{background:var(--surface)!important;}
 /* theme picker */
 .theme-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.55rem;margin-top:.3rem}
 .theme-swatch{aspect-ratio:1;border-radius:10px;cursor:pointer;border:2px solid transparent;transition:border-color .15s,transform .12s;overflow:hidden;position:relative}
@@ -370,6 +375,7 @@ footer{padding:.9rem 1.6rem;background:var(--surface);border-top:1px solid var(-
   </div>
 
   <div id="main">
+    <div id="vanta-bg"></div>
     <div class="chat-bar">
       <span class="chat-hash">#</span>
       <span class="chat-title" id="chatTitle">—</span>
@@ -380,7 +386,6 @@ footer{padding:.9rem 1.6rem;background:var(--surface);border-top:1px solid var(-
     </div>
     <div class="status-bar" id="statusBar"><span>⚠</span><span id="statusMsg">Reconnecting…</span></div>
     <div id="messages">
-      <div id="vanta-bg"></div>
       <div class="empty" id="emptyState"><div class="empty-icon">💬</div><div class="empty-text">Pick a server to start chatting</div></div>
     </div>
     <footer>
@@ -624,11 +629,11 @@ function loadVantaScript(effect) {
 }
 
 function applyVanta(id) {
-  // destroy existing
   if (vantaInstance) { try { vantaInstance.destroy(); } catch(e){} vantaInstance = null; }
   activeVantaId = id;
   localStorage.setItem('lc_vanta', id);
   updateSwatchActive();
+  document.body.classList.remove('vanta-active');
 
   const theme = VANTA_THEMES.find(t => t.id === id);
   if (!theme || !theme.effect) return;
@@ -638,9 +643,12 @@ function applyVanta(id) {
 
   loadVantaScript(theme.effect).then(() => {
     const fn = window['VANTA'] && window['VANTA'][theme.effect];
-    if (!fn) return;
+    if (!fn) { console.warn('VANTA.' + theme.effect + ' not found'); return; }
+    // make sure el fills its parent
+    el.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;';
     vantaInstance = fn({ el, THREE: window.THREE, ...theme.cfg, mouseControls:true, touchControls:true, gyroControls:false });
-  }).catch(e => console.warn('Vanta load failed', e));
+    document.body.classList.add('vanta-active');
+  }).catch(e => console.warn('Vanta load failed:', e));
 }
 
 function buildThemeGrid() {
