@@ -492,11 +492,12 @@ function joinChat() {
       if (!storedHash && !storedPlain) { err.textContent = '⚠ No join code set in Firebase.'; reset(); return; }
       if (!codeOk) { err.textContent = '⚠ Wrong code.'; document.getElementById('codeInput').value=''; document.getElementById('codeInput').focus(); reset(); return; }
 
-      // check name uniqueness
+      // check name uniqueness — only against entries active in last 20s
+      const now = Date.now();
       let nameTaken = false;
       presSnap.forEach(child => {
         const d = child.val();
-        if (d && d.name && d.name.toLowerCase() === n.toLowerCase()) nameTaken = true;
+        if (d && d.name && d.ts && (now - d.ts) < 20000 && d.name.toLowerCase() === n.toLowerCase()) nameTaken = true;
       });
       if (nameTaken) { err.textContent = '⚠ That name is already in use. Pick another.'; reset(); return; }
 
@@ -928,7 +929,7 @@ function startPresence() {
   presenceRef = db.ref('presence/'+myId);
   presenceRef.onDisconnect().remove();
   broadcastPresence();
-  setInterval(broadcastPresence, 8000);
+  setInterval(() => { broadcastPresence(); renderMembers(); }, 8000);
   db.ref('presence').on('value', snap => {
     members={};
     snap.forEach(child=>{ const d=child.val(); if(d&&d.name) members[child.key]=d; });
@@ -942,7 +943,9 @@ function broadcastPresence() {
 function renderMembers() {
   const list=document.getElementById('memList'), count=document.getElementById('onlineCount'), cCount=document.getElementById('chatOnline');
   list.innerHTML='';
-  const entries=Object.entries(members);
+  const now = Date.now();
+  // only show entries updated within the last 20s (broadcastPresence runs every 8s)
+  const entries=Object.entries(members).filter(([,m]) => m.ts && (now - m.ts) < 20000);
   count.textContent=entries.length;
   cCount.textContent=currentSrv?entries.filter(([,m])=>m.server===currentSrv.id).length:0;
   entries.sort((a,b)=>a[1].name.localeCompare(b[1].name)).forEach(([uid,m])=>{
