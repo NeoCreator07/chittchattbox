@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Relay</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
 <style>
 /* ── RELAY LOGO ── */
 .relay-logo{display:flex;align-items:center;gap:.55rem;text-decoration:none}
@@ -155,7 +155,8 @@ body.vanta-active #messages .msg-text{text-shadow:0 1px 3px rgba(0,0,0,.6)}
 
 .msg{display:flex;align-items:flex-start;gap:.7rem;padding:.38rem .65rem;border-radius:8px;animation:msgIn .16s ease both;position:relative}
 .msg:hover{background:var(--hover)}
-.msg-time{font-family:'Roboto Mono',monospace;font-size:.68rem;color:var(--muted);flex-shrink:0;user-select:none;min-width:36px;padding-top:.22rem}
+.msg-time{font-family:'Roboto Mono',monospace;font-size:.68rem;color:#000;flex-shrink:0;user-select:none;min-width:36px;padding-top:.22rem}
+[data-theme="light"] .msg-time{color:#000}
 .msg-name{font-family:'Roboto Mono',monospace;font-size:.82rem;font-weight:500;flex-shrink:0;padding-top:.18rem}
 .msg-body{display:flex;flex-direction:column;flex:1;min-width:0;gap:.3rem}
 .msg-text{font-size:.97rem;font-weight:400;color:var(--text);word-break:break-word;line-height:1.65}
@@ -211,10 +212,10 @@ footer{padding:.9rem 1.6rem;background:var(--surface);border-top:1px solid var(-
 
 /* ── VANTA BACKGROUND ── */
 #main{position:relative;}
-#vanta-bg{position:absolute;inset:0;z-index:0;pointer-events:none;width:100%;height:100%;}
-#main > *:not(#vanta-bg){position:relative;z-index:1;}
-.chat-bar{background:var(--surface)!important;}
-footer{background:var(--surface)!important;}
+#vanta-bg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:hidden;}
+#vanta-bg canvas{display:block;width:100%!important;height:100%!important;}
+.chat-bar,.status-bar,#messages,footer{position:relative;z-index:1;}
+#messages{background:transparent!important;}
 /* theme picker */
 .theme-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.55rem;margin-top:.3rem}
 .theme-swatch{aspect-ratio:1;border-radius:10px;cursor:pointer;border:2px solid transparent;transition:border-color .15s,transform .12s;overflow:hidden;position:relative}
@@ -334,7 +335,7 @@ footer{background:var(--surface)!important;}
 <div id="app">
   <div id="sidebar">
     <div class="sb-head">
-      <div class="sb-brand">
+      <div class="sb-brand" onclick="document.getElementById('contact-modal').classList.add('show')" style="cursor:pointer;border-radius:8px;padding:.2rem .3rem;transition:background .15s" onmouseover="this.style.background='var(--hover)'" onmouseout="this.style.background=''"  title="Contact the developer">
         <svg width="22" height="22" viewBox="0 0 28 28" fill="none" style="flex-shrink:0">
           <rect width="28" height="28" rx="7" fill="url(#plane-grad-sb)"/>
           <defs>
@@ -504,7 +505,50 @@ footer{background:var(--surface)!important;}
   <img id="lightboxImg" src="" alt=""/>
 </div>
 
-<script>
+<!-- CONTACT MODAL -->
+<div class="modal-bg" id="contact-modal">
+  <div class="modal" style="max-width:360px;text-align:center;align-items:center">
+    <div style="width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#7c3aed,#4f1d96);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 28px rgba(124,58,237,.45);margin:0 auto">
+      <svg width="34" height="34" viewBox="0 0 28 28" fill="none">
+        <path d="M4 7L24 14L4 21L8 14L4 7Z" fill="url(#plane-grad-contact)"/>
+        <defs><linearGradient id="plane-grad-contact" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#f9c846"/><stop offset="60%" stopColor="#d97cf5"/><stop offset="100%" stopColor="#c4b5fd"/>
+        </linearGradient></defs>
+        <path d="M8 14L13 12.5L14 18Z" fill="rgba(255,255,255,0.35)"/>
+      </svg>
+    </div>
+    <div>
+      <h2 style="font-size:1.2rem;margin-bottom:.35rem">Contact</h2>
+      <p class="modal-sub" style="text-align:center">Have feedback, questions, or just want to say hi? Send me an email.</p>
+    </div>
+    <a href="/cdn-cgi/l/email-protection#9bfafdfaf0fefcf6faf2f7b5e9feefe9faf8efadaba3dbe8f2f6ebf7fef7f4fcf2f5b5f8f4f6" style="display:flex;align-items:center;gap:.7rem;background:var(--accent-dim);border:1px solid rgba(124,58,237,.3);border-radius:12px;padding:.85rem 1.2rem;text-decoration:none;width:100%;transition:border-color .15s,background .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='rgba(124,58,237,.3)'">
+      <span style="font-size:1.3rem">✉️</span>
+      <div style="text-align:left;min-width:0">
+        <div style="font-family:'Roboto Mono',monospace;font-size:.7rem;color:var(--dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.2rem">Email</div>
+        <div style="font-family:'Roboto Mono',monospace;font-size:.8rem;color:var(--accent);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span class="__cf_email__" data-cfemail="b7d6d1d6dcd2d0dad6dedb99c5d2c3c5d6d4c381878ff7c4dedac7dbd2dbd8d0ded999d4d8da">[email&#160;protected]</span></div>
+      </div>
+    </a>
+    <a href="https://github.com/NeoCreator07/Relay-Messaging" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:.7rem;background:var(--hover);border:1px solid var(--border2);border-radius:12px;padding:.85rem 1.2rem;text-decoration:none;width:100%;transition:border-color .15s,background .15s" onmouseover="this.style.borderColor='var(--text)'" onmouseout="this.style.borderColor='var(--border2)'">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="var(--text)" style="flex-shrink:0"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
+      <div style="text-align:left;min-width:0">
+        <div style="font-family:'Roboto Mono',monospace;font-size:.7rem;color:var(--dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.2rem">GitHub — Repo</div>
+        <div style="font-family:'Roboto Mono',monospace;font-size:.8rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">NeoCreator07/Relay-Messaging</div>
+      </div>
+    </a>
+    <a href="https://github.com/NeoCreator07" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:.7rem;background:var(--hover);border:1px solid var(--border2);border-radius:12px;padding:.85rem 1.2rem;text-decoration:none;width:100%;transition:border-color .15s,background .15s" onmouseover="this.style.borderColor='var(--text)'" onmouseout="this.style.borderColor='var(--border2)'">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="var(--text)" style="flex-shrink:0"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
+      <div style="text-align:left;min-width:0">
+        <div style="font-family:'Roboto Mono',monospace;font-size:.7rem;color:var(--dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.2rem">GitHub — Profile</div>
+        <div style="font-family:'Roboto Mono',monospace;font-size:.8rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">NeoCreator07 (TerminalVelocity)</div>
+      </div>
+    </a>
+    <div class="modal-btns" style="width:100%;justify-content:center">
+      <button class="ghost-btn" onclick="document.getElementById('contact-modal').classList.remove('show')">Close</button>
+    </div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ─────────────────────────────────────────────────────────────
 //  CONFIG
 // ─────────────────────────────────────────────────────────────
@@ -576,7 +620,7 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('gifSearch').addEventListener('keydown', e => { if (e.key==='Enter') searchGifs(); });
   document.getElementById('srvJoinCodeInput').addEventListener('keydown', e => { if (e.key==='Enter') submitSrvJoinCode(); });
 
-  ['srv-modal','delete-modal','gif-modal','settings-modal','srv-join-modal'].forEach(id => {
+  ['srv-modal','delete-modal','gif-modal','settings-modal','srv-join-modal','contact-modal'].forEach(id => {
     const el = document.getElementById(id);
     el.addEventListener('click', e => { if (e.target === el) el.classList.remove('show'); });
   });
@@ -600,85 +644,97 @@ function closeSettings() { document.getElementById('settings-modal').classList.r
 //  VANTA BACKGROUNDS
 // ─────────────────────────────────────────────────────────────
 const VANTA_THEMES = [
-  { id:'none',    label:'None',    effect:null },
-  { id:'net',     label:'Net',     effect:'NET',      cfg:{ color:0x6d28d9, backgroundColor:0x0c0e14, points:9, maxDistance:22, spacing:18 } },
-  { id:'waves',   label:'Waves',   effect:'WAVES',    cfg:{ color:0x1e1b4b, backgroundColor:0x060612, waveHeight:18, waveSpeed:0.5, zoom:0.85 } },
-  { id:'birds',   label:'Birds',   effect:'BIRDS',    cfg:{ backgroundColor:0x0a0c14, color1:0x7c3aed, color2:0xf472b6, birdSize:1.2, wingSpan:28, speedLimit:4, separation:60 } },
-  { id:'cells',   label:'Cells',   effect:'CELLS',    cfg:{ color1:0x1e1b4b, color2:0x7c3aed, size:2.5, speed:1.2 } },
-  { id:'dots',    label:'Dots',    effect:'DOTS',     cfg:{ color:0x7c3aed, color2:0xf9c846, backgroundColor:0x080810, size:3.5, spacing:38 } },
-  { id:'fog',     label:'Fog',     effect:'FOG',      cfg:{ highlightColor:0x7c3aed, midtoneColor:0x4f1d96, lowlightColor:0x0a0014, baseColor:0x0c0e14, blurFactor:0.62, speed:1.2, zoom:0.9 } },
-  { id:'halo',    label:'Halo',    effect:'HALO',     cfg:{ backgroundColor:0x060612, baseColor:0x7c3aed, amplitudeFactor:1.8, size:1.4 } },
-  { id:'topology',label:'Topo',    effect:'TOPOLOGY', cfg:{ color:0x7c3aed, backgroundColor:0x080810 } },
-  { id:'rings',   label:'Rings',   effect:'RINGS',    cfg:{ backgroundColor:0x060612, color:0x7c3aed } },
-  { id:'trunk',   label:'Trunk',   effect:'TRUNK',    cfg:{ color:0x7c3aed, backgroundColor:0x060612, spacing:150, chaos:3 } },
+  { id:'none',   label:'None',   effect:null, preview:'linear-gradient(135deg,#0c0e14,#1e2436)' },
+  { id:'net',    label:'Net',    effect:'NET',    preview:'linear-gradient(135deg,#1e1b4b,#6d28d9)',
+    cfg:{ color:0x6d28d9, backgroundColor:0x0c0e14, points:9, maxDistance:22, spacing:18, showDots:true }},
+  { id:'waves',  label:'Waves',  effect:'WAVES',  preview:'linear-gradient(135deg,#060612,#1e1b4b)',
+    cfg:{ color:0x180840, backgroundColor:0x060612, waveHeight:20, waveSpeed:0.6, zoom:0.9 }},
+  { id:'birds',  label:'Birds',  effect:'BIRDS',  preview:'linear-gradient(135deg,#0a0c14,#7c3aed,#f472b6)',
+    cfg:{ backgroundColor:0x0a0c14, color1:0x7c3aed, color2:0xf472b6, birdSize:1.2, wingSpan:28, speedLimit:4, separation:60, quantity:3 }},
+  { id:'cells',  label:'Cells',  effect:'CELLS',  preview:'linear-gradient(135deg,#1e1b4b,#7c3aed)',
+    cfg:{ color1:0x1e1b4b, color2:0x7c3aed, size:2.5, speed:1 }},
+  { id:'dots',   label:'Dots',   effect:'DOTS',   preview:'linear-gradient(135deg,#080810,#7c3aed,#f9c846)',
+    cfg:{ color:0x7c3aed, color2:0xf9c846, backgroundColor:0x080810, size:3, spacing:38, showLines:false }},
+  { id:'fog',    label:'Fog',    effect:'FOG',    preview:'linear-gradient(135deg,#0a0014,#4f1d96)',
+    cfg:{ highlightColor:0x7c3aed, midtoneColor:0x4f1d96, lowlightColor:0x0a0014, baseColor:0x0c0e14, blurFactor:0.6, speed:1, zoom:0.9 }},
+  { id:'globe',  label:'Globe',  effect:'GLOBE',  preview:'linear-gradient(135deg,#060612,#1e3a5f)',
+    cfg:{ color:0x3b82f6, color2:0x7c3aed, backgroundColor:0x060612, size:1.2, offsetX:0, offsetY:0 }},
+  { id:'clouds', label:'Clouds', effect:'CLOUDS', preview:'linear-gradient(135deg,#0a0014,#2d1b69)',
+    cfg:{ backgroundColor:0x0a0014, skyColor:0x2d1b69, cloudColor:0x4f1d96, cloudShadowColor:0x0a0014, sunGlareColor:0x7c3aed, sunlightX:0.75, sunlightY:-0.25, speed:0.6 }},
+  { id:'ripple', label:'Ripple', effect:'RIPPLE', preview:'linear-gradient(135deg,#060612,#4f1d96)',
+    cfg:{ color:0x7c3aed, backgroundColor:0x060612, amplitudeFactor:1.5, speed:1.2 }},
 ];
 
 let vantaInstance = null;
-let vantaScriptLoaded = {};
+const vantaLoaded = {};
 let activeVantaId = localStorage.getItem('lc_vanta') || 'none';
 
 function loadVantaScript(effect) {
   return new Promise((resolve, reject) => {
-    if (vantaScriptLoaded[effect]) { resolve(); return; }
+    if (vantaLoaded[effect]) { resolve(); return; }
+    // check if already on window (loaded in a previous call that didn't set the flag)
+    if (window.VANTA && window.VANTA[effect]) { vantaLoaded[effect]=true; resolve(); return; }
     const s = document.createElement('script');
     s.src = `https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.${effect.toLowerCase()}.min.js`;
-    s.onload = () => { vantaScriptLoaded[effect] = true; resolve(); };
-    s.onerror = reject;
+    s.onload  = () => { vantaLoaded[effect] = true; resolve(); };
+    s.onerror = () => reject(new Error('Failed to load vanta.' + effect));
     document.head.appendChild(s);
   });
 }
 
 function applyVanta(id) {
-  if (vantaInstance) { try { vantaInstance.destroy(); } catch(e){} vantaInstance = null; }
+  // tear down existing instance
+  if (vantaInstance) {
+    try { vantaInstance.destroy(); } catch(e) {}
+    vantaInstance = null;
+  }
   activeVantaId = id;
   localStorage.setItem('lc_vanta', id);
   updateSwatchActive();
   document.body.classList.remove('vanta-active');
 
-  const theme = VANTA_THEMES.find(t => t.id === id);
-  if (!theme || !theme.effect) return;
+  const t = VANTA_THEMES.find(x => x.id === id);
+  if (!t || !t.effect) return;
 
   const el = document.getElementById('vanta-bg');
-  if (!el) return;
+  if (!el) { console.error('vanta-bg element not found'); return; }
 
-  loadVantaScript(theme.effect).then(() => {
-    const fn = window['VANTA'] && window['VANTA'][theme.effect];
-    if (!fn) { console.warn('VANTA.' + theme.effect + ' not found'); return; }
-    // make sure el fills its parent
-    el.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;';
-    vantaInstance = fn({ el, THREE: window.THREE, ...theme.cfg, mouseControls:true, touchControls:true, gyroControls:false });
-    document.body.classList.add('vanta-active');
-  }).catch(e => console.warn('Vanta load failed:', e));
+  loadVantaScript(t.effect)
+    .then(() => {
+      if (!window.VANTA || !window.VANTA[t.effect]) {
+        console.error('VANTA.' + t.effect + ' still not available after load');
+        return;
+      }
+      vantaInstance = window.VANTA[t.effect]({
+        el,
+        THREE: window.THREE,
+        ...t.cfg,
+        mouseControls: true,
+        touchControls: true,
+        gyroControls: false,
+      });
+      document.body.classList.add('vanta-active');
+    })
+    .catch(e => console.error('Vanta error:', e));
 }
 
 function buildThemeGrid() {
-  const grid = document.getElementById('themeGrid'); grid.innerHTML = '';
+  const grid = document.getElementById('themeGrid');
+  grid.innerHTML = '';
   VANTA_THEMES.forEach(t => {
     const sw = document.createElement('div');
-    sw.className = 'theme-swatch' + (t.id===activeVantaId?' active':'') + (t.id==='none'?' theme-none':'');
+    sw.className = 'theme-swatch' + (t.id === activeVantaId ? ' active' : '') + (t.id === 'none' ? ' theme-none' : '');
     sw.dataset.id = t.id;
-    sw.title = t.label;
     if (t.id === 'none') {
       sw.textContent = 'None';
     } else {
-      // colored preview square
-      const previewColors = {
-        net:'linear-gradient(135deg,#1e1b4b,#6d28d9)',
-        waves:'linear-gradient(135deg,#060612,#1e1b4b)',
-        birds:'linear-gradient(135deg,#0a0c14,#7c3aed,#f472b6)',
-        cells:'linear-gradient(135deg,#1e1b4b,#7c3aed)',
-        dots:'linear-gradient(135deg,#080810,#7c3aed,#f9c846)',
-        fog:'linear-gradient(135deg,#0a0014,#4f1d96,#7c3aed)',
-        halo:'linear-gradient(135deg,#060612,#7c3aed)',
-        topology:'linear-gradient(135deg,#080810,#7c3aed)',
-        rings:'linear-gradient(135deg,#060612,#7c3aed)',
-        trunk:'linear-gradient(135deg,#060612,#3b0764,#7c3aed)',
-      };
-      sw.style.background = previewColors[t.id] || '#111';
+      sw.style.background = t.preview;
     }
-    const lbl = document.createElement('div'); lbl.className='theme-swatch-label'; lbl.textContent=t.label;
+    const lbl = document.createElement('div');
+    lbl.className = 'theme-swatch-label';
+    lbl.textContent = t.label;
     sw.appendChild(lbl);
-    sw.onclick = () => { applyVanta(t.id); updateSwatchActive(); };
+    sw.onclick = () => applyVanta(t.id);
     grid.appendChild(sw);
   });
 }
@@ -1087,6 +1143,7 @@ function appendMsg(key, data) {
   const box=document.getElementById('messages'), isSelf=data.name===myName;
   const wrap=document.createElement('div'); wrap.className='msg '+(isSelf?'self':'other'); wrap.dataset.key=key;
   const time=document.createElement('span'); time.className='msg-time'; time.textContent=fmt(data.ts);
+  if(data.ts){ const d=new Date(data.ts); time.title=d.toLocaleDateString()+' '+d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0'); }
   const nameEl=document.createElement('span'); nameEl.className='msg-name'; nameEl.textContent=data.name+':';
   const body=document.createElement('div'); body.className='msg-body';
   buildMsgContent(body, data);
@@ -1203,10 +1260,9 @@ function renameMe() {
 // ─────────────────────────────────────────────────────────────
 //  UTILS
 // ─────────────────────────────────────────────────────────────
-function fmt(ts){if(!ts)return'';const d=new Date(ts);return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');}
-function fmtSize(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFixed(1)+'KB';return(b/1048576).toFixed(1)+'MB';}
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function slugify(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
-</script>
-</body>
-</html>
+function fmt(ts){
+  if(!ts)return'';
+  const d=new Date(ts);
+  return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
+}
+function fmtSize(b){if(b<1024)return b+'B';if(b<1048576)return
